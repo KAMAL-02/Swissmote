@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/auth", authRoute);
-app.use("/api/events", eventRoute);
+app.use("/api/event", eventRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
