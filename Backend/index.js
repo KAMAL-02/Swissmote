@@ -2,10 +2,17 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
+const http = require("http");
+
+const { initSocket } = require("./socket"); // Import socket initializer
 
 const authRoute = require('./route/authRoute');
 const eventRoute = require('./route/eventRoute');
 require('dotenv').config();
+
+const server = http.createServer(app);
+const io = initSocket(server); 
+
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
@@ -24,6 +31,14 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-app.listen(3000, () => {
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+module.exports = { io, server };
+server.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

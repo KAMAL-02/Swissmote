@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getEvents, getEvent, postEvent, updateEvent, deleteEvent, joinEvent, leaveEvent } = require('../controller/eventController');
 const authMiddleware = require('../middleware/authMiddleware');
+const upload = require('../upload');
 
 router.get("/getEvents", (req, res) => {
     getEvents(req)
@@ -25,7 +26,7 @@ router.get("/getEvent/:eventId", (req, res) => {
     })
 })
 
-router.post("/createEvent", authMiddleware, (req, res) => {
+router.post("/createEvent", authMiddleware, upload.single('image'), (req, res) => {
     postEvent(req)
     .then((response) => {
         if(response.error) return res.status(400).json({...response});
@@ -36,7 +37,7 @@ router.post("/createEvent", authMiddleware, (req, res) => {
     });
 })
 
-router.put("/updateEvent/:eventId",authMiddleware, (req, res) => {
+router.put("/updateEvent/:eventId",authMiddleware, upload.single('image'), (req, res) => {
     updateEvent(req)
     .then((response) => {
         if(response.error) return res.status(400).json({...response});

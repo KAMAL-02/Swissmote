@@ -1,5 +1,5 @@
 const Event = require('../model/event');
-const router = require('../route/eventRoute');
+const { getIO } = require("../socket");
 
 
 const getEvents = async(req) => {
@@ -32,8 +32,10 @@ const postEvent = async(req) => {
     console.log(req.user);
     if(!title || !description || !date ) return ({error : "Kindly enter required fields"});
 
+    const image = req.file ? req.file.path : null;
+
     try {
-        const event = await (await Event.create({ title, description, date, createdBy: req.user.id })).populate('createdBy', 'name email');
+        const event = await (await Event.create({ title, description, date, image, createdBy: req.user.id })).populate('createdBy', 'name email');
 
         if(!event) return ({error : "Event not created"});
 
@@ -110,7 +112,9 @@ const joinEvent = async(req) => {
 
         const updatedEvent = await createdEvent.updateOne({ $push: { attendees: userId } });
         if(!updatedEvent) return ({error : "Event not updated"});
-
+        const totalAttendees = createdEvent.attendees.length+1;
+        console.log(totalAttendees,);
+        getIO().emit("attendeeCountUpdated", { eventId, attendees: totalAttendees });
         return ({ message: "You have joined the event", updatedEvent });
     } catch (error) {
         console.log(error);
@@ -134,6 +138,9 @@ const leaveEvent = async(req) => {
 
         const updatedEvent = await leaveEvent.updateOne({ $pull: { attendees: userId } });
         if(!updatedEvent) return ({error : "Event not updated"});
+
+        const totalAttendees = leaveEvent.attendees.length-1;
+        getIO().emit("attendeeCountUpdated", { eventId, attendees: totalAttendees });
 
         return ({ message: "You have left the event", updatedEvent });
     } catch (error) {
