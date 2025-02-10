@@ -38,7 +38,7 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
-module.exports = { io, server };
+module.exports = { io, server, app };
 server.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
