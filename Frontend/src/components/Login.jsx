@@ -24,7 +24,7 @@ export default function Login() {
         console.log(response.data);
         if (response.data.token) {
           localStorage.setItem("authToken", response.data.token);
-          localStorage.setItem("user", response.data.newUser._id);
+          localStorage.setItem("user", response.data.user._id);
           setLoading(false);
           toast.success(response.data.message);
           navigate("/events");
