@@ -21,10 +21,10 @@ export default function Login() {
         const url = isLogin ? `${base_url}/api/auth/login` : `${base_url}/api/auth/signin`;
         const data = isLogin ? { email, password } : { name, email, password };
         const response = await axios.post(url, data);
-  
+        console.log(response.data);
         if (response.data.token) {
           localStorage.setItem("authToken", response.data.token);
-          localStorage.setItem("user", response.data.user._id);
+          localStorage.setItem("user", response.data.newUser._id);
           setLoading(false);
           toast.success(response.data.message);
           navigate("/events");
