@@ -175,7 +175,7 @@ const Event = () => {
                   </div>
                   <p className="text-gray-600">{event.description}</p>
                   <p className="text-sm text-gray-600">
-                    Category: {event.category || "General"}
+                    Category: {event.category}
                   </p>
                   <p className="text-sm text-gray-500">
                     Date: {new Date(event.date).toDateString()}
