@@ -10,6 +10,7 @@ const CreateEvent = () => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [image, setImage] = useState(null);
+  const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const base_url = import.meta.env.VITE_BASE_URL;
   const authToken = localStorage.getItem("authToken");
@@ -17,14 +18,15 @@ const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !date) {
-      alert("Title, description, and date are required.");
+    if (!title || !description || !date || !category) {
+      alert("Title, description, date and category are required.");
       return;
     }
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
+    formData.append("category", category);
     formData.append("date", date);
     if (image) {
       formData.append("image", image);
@@ -76,6 +78,14 @@ const CreateEvent = () => {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Event Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
           required
         />

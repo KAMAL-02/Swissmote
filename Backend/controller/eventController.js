@@ -28,7 +28,7 @@ const getEvent = async(req) => {
 }
 
 const postEvent = async(req) => {
-    const { title, description, date} = req.body;
+    const { title, description, date, category} = req.body;
     console.log(req.user);
     if(!title || !description || !date ) return ({error : "Kindly enter required fields"});
 
@@ -36,7 +36,7 @@ const postEvent = async(req) => {
     console.log("image", image);
 
     try {
-        const event = await (await Event.create({ title, description, date, image, createdBy: req.user.id })).populate('createdBy', 'name email');
+        const event = await (await Event.create({ title, description, date, image, category, createdBy: req.user.id })).populate('createdBy', 'name email');
 
         if(!event) return ({error : "Event not created"});
 
@@ -51,7 +51,8 @@ const updateEvent = async(req) => {
     const eventId = req.params.eventId;
     if(!eventId) return ({error : "Event Id not found"});
 
-    const { title, description, date } = req.body;
+    const { title, description, date, category } = req.body;
+    console.log(req.body);
     const userId = req.user.id;
     if(!userId) return ({error : "User Id not found"});
 
@@ -68,6 +69,7 @@ const updateEvent = async(req) => {
                     title: title,
                     description: description,
                     date: date,
+                    category: category,
                     image: image
                 }
             }

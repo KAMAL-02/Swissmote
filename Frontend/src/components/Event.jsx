@@ -5,9 +5,11 @@ import Count from "./Count";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "./Loader";
+import FilterEvent from "./FilterEvent";
 
 const Event = () => {
   const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const base_url = import.meta.env.VITE_BASE_URL;
   const authToken = localStorage.getItem("authToken");
@@ -36,6 +38,7 @@ const Event = () => {
       });
       console.log("Events:", response.data.events);
       setEvents(response.data.events);
+      setFilteredEvents(response.data.events);
     } catch (error) {
       console.error(
         "Error fetching events:",
@@ -139,11 +142,12 @@ const Event = () => {
             {!authToken ? "Login" : "Logout"}
           </button>
         </div>
+        <FilterEvent events={events} setFilteredEvents={setFilteredEvents} />
         {loading ? (
           <Loader />
         ) : (
           <div className="grid gap-6">
-            {events.map((event) => {
+            {filteredEvents.map((event) => {
               const isAttending = event.attendees.includes(userId);
               const isCreator = event.createdBy._id === userId;
               return (
@@ -170,6 +174,9 @@ const Event = () => {
                     )}
                   </div>
                   <p className="text-gray-600">{event.description}</p>
+                  <p className="text-sm text-gray-600">
+                    Category: {event.category || "General"}
+                  </p>
                   <p className="text-sm text-gray-500">
                     Date: {new Date(event.date).toDateString()}
                   </p>
