@@ -14,7 +14,11 @@ const server = http.createServer(app);
 const io = initSocket(server); 
 
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI,{
+  useNewUrlParser: true,
+  useUnifiedTopology: true,  // Helps with connection stability
+  serverSelectionTimeoutMS: 5000, // Reduce timeout
+})
 .then(() => {
     console.log('Connected to MongoDB');
 }).catch((err) => {
