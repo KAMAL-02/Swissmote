@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { getEvents, getEvent, postEvent, updateEvent, deleteEvent, joinEvent, leaveEvent } = require('../controller/eventController');
 const authMiddleware = require('../middleware/authMiddleware');
-const upload = require('../upload');
+const multer = require('multer');
+// const { upload } = require('../upload');
+const { storage } = require('../upload');
+const upload = multer({ storage });
 
 router.get("/getEvents", (req, res) => {
     getEvents(req)

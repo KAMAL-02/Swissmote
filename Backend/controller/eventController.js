@@ -28,11 +28,12 @@ const getEvent = async(req) => {
 }
 
 const postEvent = async(req) => {
-    const { title, description, date } = req.body;
+    const { title, description, date} = req.body;
     console.log(req.user);
     if(!title || !description || !date ) return ({error : "Kindly enter required fields"});
 
     const image = req.file ? req.file.path : null;
+    console.log("image", image);
 
     try {
         const event = await (await Event.create({ title, description, date, image, createdBy: req.user.id })).populate('createdBy', 'name email');
@@ -54,6 +55,8 @@ const updateEvent = async(req) => {
     const userId = req.user.id;
     if(!userId) return ({error : "User Id not found"});
 
+    const image = req.file ? req.file.path : null;
+
     try {
         const event = await Event.findById(eventId);
         if(!event) return ({error : "Event not found"});
@@ -65,6 +68,7 @@ const updateEvent = async(req) => {
                     title: title,
                     description: description,
                     date: date,
+                    image: image
                 }
             }
         ).populate('createdBy', 'name email');
@@ -84,7 +88,7 @@ const deleteEvent = async(req) => {
     if(!userId) return ({error : "User Id not found"});
 
     try {
-        const deletedEvent = await Event.findByIdAndDelete(eventId).populate('createdBy', 'name email');
+        const deletedEvent = await Event.findByIdAndDelete(eventId);
         if(!deletedEvent) return ({error : "Event not deleted"});
         
         if(deletedEvent.createdBy != userId) return ({error : "You are not authorized to delete this event"});
@@ -110,12 +114,15 @@ const joinEvent = async(req) => {
         if(createdEvent.createdBy == userId) return ({error : "You cannot join your own event"});
         if(createdEvent.attendees.includes(userId)) return ({error : "You are already attending this event"});
 
-        const updatedEvent = await createdEvent.updateOne({ $push: { attendees: userId } });
-        if(!updatedEvent) return ({error : "Event not updated"});
-        const totalAttendees = createdEvent.attendees.length+1;
-        console.log(totalAttendees,);
+        await createdEvent.updateOne({ $push: { attendees: userId } });
+
+        const updatedEvent = await Event.findById(eventId);
+        const totalAttendees = updatedEvent.attendees.length;
+
         getIO().emit("attendeeCountUpdated", { eventId, attendees: totalAttendees });
+
         return ({ message: "You have joined the event", updatedEvent });
+
     } catch (error) {
         console.log(error);
         return ({error : error.message});
@@ -136,10 +143,12 @@ const leaveEvent = async(req) => {
         if(leaveEvent.createdBy == userId) return ({error : "You cannot leave your own event"});
         if(!leaveEvent.attendees.includes(userId)) return ({error : "You are not attending this event"});
 
-        const updatedEvent = await leaveEvent.updateOne({ $pull: { attendees: userId } });
-        if(!updatedEvent) return ({error : "Event not updated"});
+         await leaveEvent.updateOne({ $pull: { attendees: userId } });
 
-        const totalAttendees = leaveEvent.attendees.length-1;
+        const updatedEvent = await Event.findById(eventId);
+        const totalAttendees = updatedEvent.attendees.length;
+        console.log(`Emitting event for eventId: ${eventId}, total attendees: ${totalAttendees} updatedEvent: ${updatedEvent}`);
+
         getIO().emit("attendeeCountUpdated", { eventId, attendees: totalAttendees });
 
         return ({ message: "You have left the event", updatedEvent });

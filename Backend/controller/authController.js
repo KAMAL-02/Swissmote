@@ -11,14 +11,14 @@ const signin = async(req) => {
     try{
         const user = await User.findOne({email});
         if(user) return ({error : "User already exists"});
-
+        console.log(name, email, password);
         const hashedPassword = bcrypt.hashSync(password, 10);
         const newUser = await User.create({
             name,
             email,
             password: hashedPassword
         })
-
+        console.log(newUser);
         if(!newUser) return ({error : "User not created"});
 
         const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET);
@@ -41,7 +41,7 @@ const login = async(req) => {
         if(!isMatch) return ({error : "Invalid credentials"});
 
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET);
-        return ({ message: "Login successful", name: user.name, token });
+        return ({ message: "Login successful", user, token });
     } catch (error) {
         console.log(error);
         return ({error : error.message});
